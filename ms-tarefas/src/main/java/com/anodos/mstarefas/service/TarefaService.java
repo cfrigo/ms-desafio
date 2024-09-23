@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.anodos.mstarefas.entities.Tarefa;
 import com.anodos.mstarefas.entities.dto.TarefaDTO;
+import com.anodos.mstarefas.feignclients.UsuariosFeignClient;
 import com.anodos.mstarefas.repository.TarefaRepository;
 
 @Service
@@ -20,17 +21,25 @@ public class TarefaService {
 
 	@Autowired
 	private TarefaRepository tarefaRepository;
+	
+	@Autowired
+	private UsuariosFeignClient usuariosFeignClient;
 
 	public Tarefa saveByTarefa(TarefaDTO dto) {
-
+		
 		Tarefa t = new Tarefa();
 		try {
-			t.setDescription(dto.getDescription());
-			t.setStatus(dto.getStatus());
-			t.setTitle(dto.getTitle());
-			t.setUserId(dto.getUserId());			
 			
-			return tarefaRepository.save(t);
+			if(usuariosFeignClient.existsById(dto.getUserId()).getBody()) {
+				t.setDescription(dto.getDescription());
+				t.setStatus(dto.getStatus());
+				t.setTitle(dto.getTitle());
+				t.setUserId(dto.getUserId());			
+				
+				return tarefaRepository.save(t);				
+			}
+			return t;
+			
 		} catch (Exception e) {
 			logger.error("Erro ao efetuar o cadastro: " + e.getMessage());
 			return new Tarefa();

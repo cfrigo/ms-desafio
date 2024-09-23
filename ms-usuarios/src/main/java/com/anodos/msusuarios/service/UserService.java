@@ -80,4 +80,13 @@ public class UserService {
 		return isMatch;
 	}
 
+	public Boolean existsById(Long id) {
+
+		try {
+			return userRepository.existsById(id);
+		} catch (Exception e) {
+			logger.error("Erro ao consultar usuario: " + e.getMessage());
+			return false;
+		}
+	}
 }
